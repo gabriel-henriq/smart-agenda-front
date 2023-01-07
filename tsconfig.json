@@ -2,10 +2,13 @@
   "compilerOptions": {
     "target": "es5",
     "lib": [
+      "es6",
       "dom",
+      "es2017",
       "dom.iterable",
       "esnext"
     ],
+    "noImplicitAny": true,
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
@@ -21,6 +24,6 @@
     "jsx": "react-jsx"
   },
   "include": [
-    "src"
+    "src/**/*"
   ]
 }
