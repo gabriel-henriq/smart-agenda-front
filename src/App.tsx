@@ -1,11 +1,12 @@
 import React from 'react';
-import Professor from "./components/professor";
 import Schedulerr from "./components/basicScheduler";
+import ProfessorC from "./components/professor";
 
 function App() {
   return (
     <>
       <Schedulerr />
+      {/*  <ProfessorC/>*/}
     </>
   );
 }

@@ -1,124 +1,187 @@
 import * as React from 'react';
 import Paper from '@mui/material/Paper';
-import {
-    ViewState,
-    SchedulerDateTime,
-} from '@devexpress/dx-react-scheduler';
+import {amber, deepOrange,  purple} from "@mui/material/colors";
+import {AppointmentModel, ChangeSet, EditingState, SchedulerDateTime, ViewState,Resource} from '@devexpress/dx-react-scheduler';
 
 import {
-    CurrentTimeIndicator,
-    Scheduler,
-    DayView,
+    AppointmentForm,
     Appointments,
-    Resources,
     AppointmentTooltip,
-    AppointmentForm, WeekView,
+    DayView,
+    CurrentTimeIndicator,
+    Resources,
+    Scheduler, DragDropProvider, EditRecurrenceMenu,
 } from '@devexpress/dx-react-scheduler-material-ui';
-import {appointments, resourcesData} from "../data/data";
 
-const TextEditor = (props: JSX.IntrinsicAttributes & AppointmentForm.TextEditorProps) => {
-    if (props.type === 'multilineTextEditor') {
-        return null;
-    }
-
-    return <AppointmentForm.TextEditor {...props}/>
-};
-
-const BasicTextEditorComponent: React.FC<AppointmentForm.TextEditorProps> = ({
-    value,
-    type,
-...restProps}) => {
-
-    return (
-        <AppointmentForm.TextEditor
-            value={"Title"}
-            type={"titleTextEditor"}
-            className={"title"}
-            {...restProps}
-        >
-        </AppointmentForm.TextEditor>
-    )
+interface CustomAppointment extends AppointmentModel {
+    id: number | string;
+    roomId: number;
+    professorId: number;
+    tabletId: number;
+    student: string;
 }
 
-const BasicLayoutComponent: React.FC<AppointmentForm.BasicLayoutProps> = ({
-    onFieldChange,
-    appointmentData,
-    ...restProps}) => {
-    const onCustomFieldChange = (nextValue: any) => {
-        onFieldChange({ customField: nextValue });
-    };
-
-    return (
-        <AppointmentForm.BasicLayout
-            appointmentData={appointmentData}
-            onFieldChange={onFieldChange}
-            {...restProps}
-        >
-            <AppointmentForm.Label
-                text="Nome do Aluno"
-                type="titleLabel"
-            />
-            <AppointmentForm.TextEditor
-                value={appointmentData.customField}
-                onValueChange={onCustomFieldChange}
-                readOnly={false}
-                placeholder="Gabriel Henrique"
-                type={"titleTextEditor"}
-            />
-        </AppointmentForm.BasicLayout>
-    );
-};
-
-const Indicator: React.FC<CurrentTimeIndicator.IndicatorProps> = ({ top }) => {
-    return (
-        <div style={{
-            height: '3px',
-            width: '100%',
-            background: 'red',
-            position: 'absolute',
-            top: top,
-            left: 0,
-        }} />
-    );
-};
+const initialAppointments: Array<CustomAppointment> = [
+    {
+        startDate: new Date(),
+        endDate: new Date(),
+        title: 'Meeting',
+        id: 1,
+        roomId: 1,
+        professorId: 1,
+        tabletId: 1,
+        student: 'Student 1',
+    },
+    {
+        startDate: new Date(),
+        endDate: new Date(),
+        title: 'Lecture',
+        id: 2,
+        roomId: 2,
+        professorId: 2,
+        tabletId: 2,
+        student: 'Student 2',
+    },
+];
+const resourcesData: Array<Resource> = [
+    {
+        fieldName: "roomId",
+        title: "Sala",
+        instances: [
+            {
+                id: 1,
+                text: "Sala 1",
+                color: amber
+            },
+            {
+                id: 2,
+                text: "Sala 2",
+                color: deepOrange
+            },
+            {
+                id: 3,
+                text: "Sala 3",
+                color: purple
+            },
+        ]
+    },
+    {
+        fieldName: "professorId",
+        title: "Professor",
+        instances: [
+            {
+                id: 1,
+                text: "Daniele",
+                color: amber
+            },
+            {
+                id: 2,
+                text: "Alberto",
+                color: deepOrange
+            },
+            {
+                id: 3,
+                text: "Lucas",
+                color: purple
+            },
+        ]
+    },
+    {
+        fieldName: "tabletId",
+        title: "Tablet",
+        instances: [
+            {
+                id: 1,
+                text: "Tablet 1",
+                color: amber
+            },
+            {
+                id: 2,
+                text: "Tablet 2",
+                color: deepOrange
+            },
+            {
+                id: 3,
+                text: "Tablet 3",
+                color: purple
+            },
+        ]
+    },
+];
 
 const Schedulerr: React.FC = () => {
     const [currentDate, setCurrentDate] = React.useState<SchedulerDateTime>(new Date());
+    const [appointments, setAppointments] = React.useState<CustomAppointment[]>(initialAppointments);
+    const [editingAppointment, setEditingAppointment] = React.useState<Partial<AppointmentModel>>();
+
+    const handleEditingAppointmentChange = (appointment: Partial<AppointmentModel>) => {
+        setEditingAppointment(appointment);
+    };
+
+    const handleCommitChanges = (changes: ChangeSet) => {
+        if (changes.added) {
+            // Create a new appointment
+            const newAppointment = changes.added[0];
+            appointments.push(newAppointment);
+        }
+        if (changes.changed) {
+            // Update an existing appointment
+            const changedAppointmentId = Object.keys(changes.changed)[0];
+            const changedAppointment = changes.changed[changedAppointmentId];
+            const updatedAppointments = appointments.map((appointment) => {
+                if (appointment.id === changedAppointmentId) {
+                    return { ...appointment, ...changedAppointment };
+                }
+                return appointment;
+            });
+            setAppointments(updatedAppointments);
+        }
+        try {
+            if (changes.deleted) {
+                // Delete an appointment
+                const deletedAppointmentId = changes.deleted;
+                const updatedAppointments = appointments.filter(
+                    (appointment) => appointment.id !== deletedAppointmentId
+                );
+                setAppointments(updatedAppointments);
+            }
+        } catch (err) {
+            console.log(err)
+        }
+
+    };
+
+
 
     return (
         <Paper>
             <Scheduler
+                height={600}
                 data={appointments}
-
             >
+                <EditingState
+                    editingAppointment={editingAppointment}
+                    onEditingAppointmentChange={handleEditingAppointmentChange}
+                    onCommitChanges={handleCommitChanges}
+                />
+                <EditRecurrenceMenu />
                 <ViewState
                     currentDate={currentDate}
                     onCurrentDateChange={setCurrentDate}
                 />
-
-                <WeekView/>
-
+                <DayView/>
                 <Appointments/>
-                <CurrentTimeIndicator
-                    indicatorComponent={Indicator}
-                    shadePreviousAppointments={true}
-                    shadePreviousCells={true}
-                    updateInterval={6000}
-                />
-
                 <AppointmentTooltip
                     showCloseButton
                     showDeleteButton
                     showOpenButton
                 />
-                <AppointmentForm
-                    textEditorComponent={BasicTextEditorComponent}
-                    // basicLayoutComponent={BasicLayoutComponent}
-                />
+                <AppointmentForm/>
 
-
-                <Resources
-                    data={resourcesData}
+                <Resources data={resourcesData}/>
+                <DragDropProvider />
+                <CurrentTimeIndicator
+                    updateInterval={6000}
                 />
             </Scheduler>
         </Paper>
