@@ -1,33 +1,95 @@
 import * as React from 'react';
 import Paper from '@mui/material/Paper';
-import {WeekView} from '@devexpress/dx-react-scheduler-material-ui';
+import {
+    AppointmentModel,
+    ViewState,
+    SchedulerDateTime,
+    CurrentTimeIndicator,
+} from '@devexpress/dx-react-scheduler';
+
 import {
     Scheduler,
     DayView,
     Appointments,
+    Resources,
+    AppointmentTooltip,
+    AppointmentForm,
+    WeekView,
 } from '@devexpress/dx-react-scheduler-material-ui';
-import {ViewState} from "@devexpress/dx-react-scheduler";
 
-const currentDate = '2018-11-01';
-const schedulerData = [
-    { startDate: '2018-11-01T09:45', endDate: '2018-11-01T11:00', title: 'Meeting' },
-    { startDate: '2018-11-01T12:00', endDate: '2018-11-01T13:30', title: 'Go to a gym' },
-];
 
-export default () => (
-    <Paper>
-        <Scheduler
-            data={schedulerData}
-        >
-            <ViewState
+const Indicator: React.FC<CurrentTimeIndicator.IndicatorProps> = ({ top }) => {
+    return (
+        <div style={{
+            height: '100%',
+            width: '2px',
+            background: 'red',
+            position: 'absolute',
+            top: top,
+            left: '50%',
+            transform: 'translateX(-50%)'
+        }} />
+    );
+};
 
-                currentDate={currentDate}
-            />
-            <WeekView
-                startDayHour={9}
-                endDayHour={14}
-            />
-            <Appointments />
-        </Scheduler>
-    </Paper>
-);
+const appointments: Array<AppointmentModel> = [{
+    startDate: '2018-10-31T10:00',
+    endDate: '2018-10-31T11:15',
+    title: 'Meeting',
+    type: 'private',
+}, {
+    startDate: '2018-10-31T07:30',
+    endDate: '2018-10-31T09:00',
+    title: 'Go to a gym',
+    type: 'room',
+}];
+
+const resources = [{
+    fieldName: 'type',
+    title: 'Type',
+    instances: [
+        { id: 'private', text: 'Private', color: '#EC407A' },
+        { id: 'room', text: 'asd', color: '#7E57C2' },
+    ],
+}];
+
+const Schedulerr: React.FC = () => {
+    const [currentDate, setCurrentDate] = React.useState<SchedulerDateTime>('2018-10-31T14:15');
+
+    return (
+        <Paper>
+            <Scheduler
+                height={600}
+                data={appointments}
+            >
+                <ViewState
+                    currentDate={currentDate}
+                    onCurrentDateChange={setCurrentDate}
+                />
+
+                <DayView/>
+
+                <Appointments/>
+
+                <AppointmentTooltip
+                    showCloseButton
+                    showDeleteButton
+                    showOpenButton
+                />
+                <CurrentTimeIndicator
+                    indicatorComponent={Indicator}
+                    shadePreviousAppointments={true}
+                    shadePreviousCells={true}
+                    updateInterval={6000}
+                />
+                <AppointmentForm/>
+
+                <Resources
+                    data={resources}
+                />
+            </Scheduler>
+        </Paper>
+    );
+};
+
+export default Schedulerr;
