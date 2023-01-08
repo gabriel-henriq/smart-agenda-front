@@ -1,42 +1,20 @@
 import * as React from 'react';
 import Paper from '@mui/material/Paper';
 import {
-    AppointmentModel,
     ViewState,
     SchedulerDateTime,
-    CurrentTimeIndicator,
 } from '@devexpress/dx-react-scheduler';
 
 import {
+    CurrentTimeIndicator,
     Scheduler,
     DayView,
     Appointments,
     Resources,
     AppointmentTooltip,
-    AppointmentForm,
-    AppointmentFormProps,
+    AppointmentForm, WeekView,
 } from '@devexpress/dx-react-scheduler-material-ui';
-
-const appointments: Array<AppointmentModel> = [{
-    startDate: '2018-10-31T10:00',
-    endDate: '2018-10-31T11:15',
-    title: 'Meeting',
-    type: 'room',
-}, {
-    startDate: '2018-10-31T07:30',
-    endDate: '2018-10-31T09:00',
-    title: 'Go to a gym',
-    type: 'room',
-}];
-
-const resources = [{
-    fieldName: 'type',
-    title: 'Type',
-    instances: [
-        { id: 'room', text: 'Private', color: '#EC407A' },
-        { id: 'room', text: 'asd', color: '#7E57C2' },
-    ],
-}];
+import {appointments, resourcesData} from "../data/data";
 
 const TextEditor = (props: JSX.IntrinsicAttributes & AppointmentForm.TextEditorProps) => {
     if (props.type === 'multilineTextEditor') {
@@ -46,7 +24,26 @@ const TextEditor = (props: JSX.IntrinsicAttributes & AppointmentForm.TextEditorP
     return <AppointmentForm.TextEditor {...props}/>
 };
 
-const BasicLayout: React.FC<AppointmentForm.BasicLayoutProps> = ({ onFieldChange, appointmentData, ...restProps }) => {
+const BasicTextEditorComponent: React.FC<AppointmentForm.TextEditorProps> = ({
+    value,
+    type,
+...restProps}) => {
+
+    return (
+        <AppointmentForm.TextEditor
+            value={"Title"}
+            type={"titleTextEditor"}
+            className={"title"}
+            {...restProps}
+        >
+        </AppointmentForm.TextEditor>
+    )
+}
+
+const BasicLayoutComponent: React.FC<AppointmentForm.BasicLayoutProps> = ({
+    onFieldChange,
+    appointmentData,
+    ...restProps}) => {
     const onCustomFieldChange = (nextValue: any) => {
         onFieldChange({ customField: nextValue });
     };
@@ -58,36 +55,14 @@ const BasicLayout: React.FC<AppointmentForm.BasicLayoutProps> = ({ onFieldChange
             {...restProps}
         >
             <AppointmentForm.Label
-                text="Professor"
-                type="titleLabel"
-            />
-            <AppointmentForm.Select
-                value={appointmentData.customField}
-                onValueChange={onCustomFieldChange}
-                placeholder="Gabriel Henrique"
-                readOnly={false}
-                type={"outlinedSelect"}
-            />
-            <AppointmentForm.Label
-                text="Tablet"
-                type="titleLabel"
-            />
-            <AppointmentForm.Select
-                value={appointmentData.customField}
-                onValueChange={onCustomFieldChange}
-                placeholder="Gabriel Henrique"
-                readOnly={false}
-                type={"filledSelect"}
-            />
-            <AppointmentForm.Label
                 text="Nome do Aluno"
                 type="titleLabel"
             />
             <AppointmentForm.TextEditor
                 value={appointmentData.customField}
                 onValueChange={onCustomFieldChange}
-                placeholder="Gabriel Henrique"
                 readOnly={false}
+                placeholder="Gabriel Henrique"
                 type={"titleTextEditor"}
             />
         </AppointmentForm.BasicLayout>
@@ -121,7 +96,7 @@ const Schedulerr: React.FC = () => {
                     onCurrentDateChange={setCurrentDate}
                 />
 
-                <DayView/>
+                <WeekView/>
 
                 <Appointments/>
                 <CurrentTimeIndicator
@@ -137,13 +112,13 @@ const Schedulerr: React.FC = () => {
                     showOpenButton
                 />
                 <AppointmentForm
-                    basicLayoutComponent={BasicLayout}
-                    textEditorComponent={TextEditor}
+                    textEditorComponent={BasicTextEditorComponent}
+                    // basicLayoutComponent={BasicLayoutComponent}
                 />
 
 
                 <Resources
-                    data={resources}
+                    data={resourcesData}
                 />
             </Scheduler>
         </Paper>
