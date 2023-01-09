@@ -1,6 +1,6 @@
 import * as React from 'react';
 import Paper from '@mui/material/Paper';
-import {amber, deepOrange,  purple} from "@mui/material/colors";
+import {amber, deepOrange, pink, purple, teal} from "@mui/material/colors";
 import {AppointmentModel, ChangeSet,  SchedulerDateTime, Resource, EditingState, ViewState} from '@devexpress/dx-react-scheduler';
 
 import {
@@ -16,7 +16,7 @@ import {
 } from '@devexpress/dx-react-scheduler-material-ui';
 
 interface CustomAppointment extends AppointmentModel {
-    roomId?: string;
+    roomId?: number;
 }
 
 const initialAppointments: Array<CustomAppointment> = [
@@ -24,37 +24,45 @@ const initialAppointments: Array<CustomAppointment> = [
         startDate: new Date(),
         endDate: new Date(),
         title: 'Meeting',
-        id: "1",
-        room: "Sala 1",
+        id: 1,
+        roomId: 1,
     },
     {
         startDate: new Date(),
         endDate: new Date(),
         title: 'Lecture',
-        id: "2",
-        room: "Sala 1",
+        id: 2,
+        roomId: 2,
     },
 ];
-const resourcesData: Array<Resource> = [
+
+const resourcesData: Resource[] = [
     {
         fieldName: "roomId",
-        title: "Sala",
+        title: "Room",
+        allowMultiple: true,
         instances: [
             {
-                id: "0",
-                text: "Sala 1",
+                text: 'Room 101',
+                id: 1,
                 color: amber,
+            }, {
+                text: 'Room 102',
+                id: 2,
+                color: pink,
+            }, {
+                text: 'Room 103',
+                id: 3,
+                color: purple,
+            }, {
+                text: 'Meeting room',
+                id: 4,
+                color: deepOrange,
+            }, {
+                text: 'Conference hall',
+                id: 5,
+                color: teal,
             },
-            // {
-            //     id: "1",
-            //     text: "Sala 2",
-            //     color: deepOrange,
-            // },
-            // {
-            //     id: "2",
-            //     text: "Sala 3",
-            //     color: purple,
-            // },
         ],
     },
 ];
@@ -116,7 +124,7 @@ const Schedulerr: React.FC = () => {
                     onCurrentDateChange={setCurrentDate}
                 />
                 <DayView
-                    startDayHour={20}
+                    startDayHour={15}
                     endDayHour={23}
                 />
                 <Appointments/>
@@ -125,13 +133,16 @@ const Schedulerr: React.FC = () => {
                     showDeleteButton
                     showOpenButton
                 />
+
+
                 <AppointmentForm/>
 
-                <Resources data={resourcesData}/>
+
                 <DragDropProvider />
                 <CurrentTimeIndicator
                     updateInterval={6000}
                 />
+                <Resources data={resourcesData} mainResourceName={"roomId"}/>
             </Scheduler>
         </Paper>
     );
